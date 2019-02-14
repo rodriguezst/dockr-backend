@@ -1,0 +1,133 @@
+<html><head>
+    <title>containers</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet">
+    <link rel="icon" type="image/png" href="docker.png">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript">
+    //GLOBAL VARIABLE
+    var snackbarTimeout = null;
+    
+    function updateHTML(json_data)
+    {
+        //TITLE AND HEADER
+        var header_elem = document.createElement("header");
+        var h1_elem = document.createElement("h1");
+        h1_elem.className = "title";
+        h1_elem.innerText = "Containers";
+        header_elem.appendChild(h1_elem);
+
+        //URL LIST
+        var main_elem = document.createElement("main");
+        for (item in json_data)
+        {
+            var section_elem = document.createElement("section");
+            section_elem.className = json_data[item].state;
+            var h2_elem = document.createElement("h2");
+            var a_elem = document.createElement("a");
+            a_elem.id = json_data[item].id;
+            a_elem.href = "#";
+            if (json_data[item].state == "running") {
+            	a_elem.title="Stop the container";
+            	a_elem.addEventListener('click', function (event) {
+            		event.preventDefault();
+            		stop(this.id)
+        		});
+        	} else {
+            	a_elem.title="Start the container";
+            	a_elem.addEventListener('click', function (event) {
+            		event.preventDefault();
+            		start(this.id)
+        		});
+        	}
+            a_elem.className = "bigbottom-link info-link "+json_data[item].state;
+            a_elem.innerText = json_data[item].name.replace('/','');;
+            var p_elem = document.createElement("p");
+            p_elem.innerText = json_data[item].state;
+            h2_elem.appendChild(a_elem);
+            section_elem.appendChild(h2_elem);
+            section_elem.appendChild(p_elem);
+            main_elem.appendChild(section_elem);
+        }
+
+        //ADD HEADER AND URL LIST TO BODY ELEMENT
+        console.log("Updating HTML...");
+        document.body.innerHTML='<div id="snackbar"></div>';
+        document.body.appendChild(header_elem);
+        document.body.appendChild(main_elem);
+    }
+    
+    function start(id)
+    {
+    	start_stop(id,"start")
+    }
+    
+    function stop(id)
+    {
+    	start_stop(id,"stop")
+    }
+    
+    function start_stop(id,command)
+    {
+        var xmlhttp = new XMLHttpRequest();
+        url = "/"+command+"?id="+id;
+    
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var json_res = JSON.parse(this.responseText);
+                show_message(json_res.result);
+                setTimeout(init(), 6000);
+            }
+        };
+        show_message("Sending "+command+" command...");
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    }
+    
+    function show_message(text)
+    {
+        var x = document.getElementById("snackbar");
+    	if(snackbarTimeout != null)
+    	{
+    		clearTimeout(snackbarTimeout);
+    	} else
+    	{
+        	x.className = "show";
+    	}
+        x.innerText=text;
+        snackbarTimeout = setTimeout(function(){ 
+        	x.className = x.className.replace("show", "");
+        	snackbarTimeout = null;
+        	}, 5000);
+    }
+    
+    function init()
+    {
+        var xmlhttp = new XMLHttpRequest();
+        var url = "/list";
+    
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var myArr = JSON.parse(this.responseText);
+                updateHTML(myArr);
+            }
+        };
+        console.log("Pulling Docker status...");
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    }
+    
+    function init_hc()
+    {
+        var string='[{"id":"6d298563af7504569578ad1cac257ebe26f0f3c2be20280975080f1b1d9aad1b","name":"/gifted_rosalind","state":"created"},{"id":"a4596992a24ae57842cb9279fbcd132105dc9f8da5f05b348793f7736edae3da","name":"/agitated_davinci","state":"created"},{"id":"b2bad044d2e35736f4618f7896ef78832aac8777e2e3406545d602fdbf3177fb","name":"/happy_kepler","state":"created"},{"id":"ad1714c6aedba591df6f99b5d0dee3eb724df165a8b2a7c07e2d4e48c8d391d6","name":"/sad_roentgen","state":"running"},{"id":"2f34706b7455d02afbe491df43ed37d231495027d02efa218c6005026e95d6ef","name":"/unruffled_almeida","state":"exited"},{"id":"4dd7c04d71942206a4bcc3ef888e8cdcc3106c523c33ce093524e75bf9df0394","name":"/agitated_joliot","state":"exited"},{"id":"e4793a6abee6f650faa2a78e5eaf21d4e6db60eb1f7231a24a78a3ac61512aaf","name":"/hardcore_bardeen","state":"exited"},{"id":"cf4d86a9293bbf2bdc1430dd02e70ec3b07afce761f927c8797ae1670f638e87","name":"/wizardly_booth","state":"exited"},{"id":"3cfc5b8ab80a6e6f8a8fc9953e855c90979be0c5c3fbd583db1dba6919da9c73","name":"/focused_chandrasekhar","state":"exited"}]';
+    
+        var myArr = JSON.parse(string);
+        updateHTML(myArr);
+    }
+    </script>
+  </head>
+  <body onload="init()">
+  </body>
+  </html>

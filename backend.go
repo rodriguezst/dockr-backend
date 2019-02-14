@@ -86,10 +86,18 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(message))
 }
 
+func redirect(w http.ResponseWriter, r *http.Request) {
+
+    http.Redirect(w, r, "/static/", 301)
+}
+
 func main() {
+    fs := http.FileServer(http.Dir("static"))
+    http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/list", listHandler)
 	http.HandleFunc("/start", startHandler)
 	http.HandleFunc("/stop", stopHandler)
+	http.HandleFunc("/", redirect)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
