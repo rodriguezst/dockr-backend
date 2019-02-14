@@ -1,0 +1,13 @@
+
+image: rodriguezst/dockr-backend:latest
+manifests:
+  -
+    image: rodriguezst/dockr-backend:armhf
+    platform:
+      architecture: arm
+      os: linux
+  -
+    image: rodriguezst/dockr-backend:amd64
+    platform:
+      architecture: amd64
+      os: linux
