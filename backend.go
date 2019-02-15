@@ -9,7 +9,7 @@ import (
 )
 
 // ENV VARIABLE WITH ROOT PATH (/path/to/dest/)
-base_path := os.Getenv("BASE_PATH")
+var base_path string
 
 type M map[string]interface{}
 
@@ -96,6 +96,10 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    base_path = os.Getenv("BASE_PATH")
+    if len(base_path) == 0 {
+        base_path = "/"
+    }
     fs := http.FileServer(http.Dir("static"))
     http.Handle(base_path+"static/", http.StripPrefix(base_path+"static/", fs))
 	http.HandleFunc(base_path+"list", listHandler)
