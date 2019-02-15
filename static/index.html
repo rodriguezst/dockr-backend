@@ -9,6 +9,7 @@
     <script type="text/javascript">
     //GLOBAL VARIABLE
     var snackbarTimeout = null;
+    var rootPath = '/';
     
     function updateHTML(json_data)
     {
@@ -72,7 +73,7 @@
     function start_stop(id,command)
     {
         var xmlhttp = new XMLHttpRequest();
-        url = "/"+command+"?id="+id;
+        url = basePath+command+"?id="+id;
     
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -105,8 +106,9 @@
     
     function init()
     {
+        rootPath = window.location.pathname.split("static")[0];
         var xmlhttp = new XMLHttpRequest();
-        var url = "/list";
+        var url = rootPath+"list";
     
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
