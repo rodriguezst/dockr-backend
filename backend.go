@@ -5,7 +5,11 @@ import (
 	"github.com/fsouza/go-dockerclient"
 	"log"
 	"net/http"
+	"os"
 )
+
+// ENV VARIABLE WITH ROOT PATH (/path/to/dest/)
+var base_path string
 
 type M map[string]interface{}
 
@@ -88,16 +92,20 @@ func stopHandler(w http.ResponseWriter, r *http.Request) {
 
 func redirect(w http.ResponseWriter, r *http.Request) {
 
-    http.Redirect(w, r, "/static/", 301)
+    http.Redirect(w, r, base_path+"static/", 301)
 }
 
 func main() {
+    base_path = os.Getenv("BASE_PATH")
+    if len(base_path) == 0 {
+        base_path = "/"
+    }
     fs := http.FileServer(http.Dir("static"))
-    http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/list", listHandler)
-	http.HandleFunc("/start", startHandler)
-	http.HandleFunc("/stop", stopHandler)
-	http.HandleFunc("/", redirect)
+    http.Handle(base_path+"static/", http.StripPrefix(base_path+"static/", fs))
+	http.HandleFunc(base_path+"list", listHandler)
+	http.HandleFunc(base_path+"start", startHandler)
+	http.HandleFunc(base_path+"stop", stopHandler)
+	http.HandleFunc(base_path, redirect)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
