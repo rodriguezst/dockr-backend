@@ -6,6 +6,8 @@
     <link href="https://fonts.googleapis.com/css?family=Ubuntu:300" rel="stylesheet">
     <link rel="icon" type="image/png" href="docker.png">
     <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js" rel="text/javascript"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js" rel="text/javascript"></script>
     <script type="text/javascript">
     //GLOBAL VARIABLE
     var snackbarTimeout = null;
@@ -42,6 +44,14 @@
             		event.preventDefault();
             		start(this.id)
         		});
+                $(a_elem).on( "swipeleft", function (event) {
+            		event.preventDefault();
+            		remove(this.id);
+        		});
+                $(a_elem).on( "taphold", function (event) {
+            		event.preventDefault();
+            		remove(this.id);
+        		});
         	}
             a_elem.className = "bigbottom-link info-link "+json_data[item].state;
             a_elem.innerText = json_data[item].name.replace('/','');;
@@ -62,15 +72,24 @@
     
     function start(id)
     {
-    	start_stop(id,"start")
+    	perform_action(id,"start")
     }
     
     function stop(id)
     {
-    	start_stop(id,"stop")
+    	perform_action(id,"stop")
     }
     
-    function start_stop(id,command)
+    function remove(id)
+    {
+        var confirmed = confirm("DANGER ZONE: Remove "+id+" container?");
+    	if(confirmed) 
+        {
+            perform_action(id,"remove");
+        }
+    }
+
+    function perform_action(id,command)
     {
         var xmlhttp = new XMLHttpRequest();
         url = basePath+command+"?id="+id;
