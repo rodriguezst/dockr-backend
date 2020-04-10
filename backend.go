@@ -65,6 +65,31 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(message))
 }
 
+func removeHandler(w http.ResponseWriter, r *http.Request) {
+	message := r.URL.Path
+	keys, ok := r.URL.Query()["id"]
+	if !ok || len(keys[0]) < 1 {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+	id := keys[0]
+	// Removing also container volumes
+	opts := docker.RemoveContainerOptions{ID: id, RemoveVolumes: true}
+
+	endpoint := "unix:///var/run/docker.sock"
+	client, err := docker.NewClient(endpoint)
+	if err != nil {
+		panic(err)
+	}
+	err = client.RemoveContainer(opts)
+	if err != nil {
+		//panic(err)
+		message = "{\"result\":\"error\"}"
+	} else {
+		message = "{\"result\":\"removed\"}"
+	}
+	w.Write([]byte(message))
+}
 func stopHandler(w http.ResponseWriter, r *http.Request) {
 	message := r.URL.Path
 	keys, ok := r.URL.Query()["id"]
@@ -105,6 +130,7 @@ func main() {
 	http.HandleFunc(base_path+"list", listHandler)
 	http.HandleFunc(base_path+"start", startHandler)
 	http.HandleFunc(base_path+"stop", stopHandler)
+	http.HandleFunc(base_path+"remove", removeHandler)
 	http.HandleFunc(base_path, redirect)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
