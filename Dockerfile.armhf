@@ -1,7 +1,7 @@
 ############################
 # STEP 1 build executable binary
 ############################
-FROM resin/armhf-alpine-golang AS builder
+FROM balenalib/armv7hf-alpine-golang AS builder
 RUN [ "cross-build-start" ]
 # Install git.
 # Git is required for fetching the dependencies.
